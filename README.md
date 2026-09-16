@@ -1,28 +1,25 @@
-# Backend API - Servicio de Usuarios
+# Backend API - Servicio de Usuarios y Autenticación
 
-API REST en Java con Spring Boot y PostgreSQL para la gestión de usuarios y autenticación.
+API REST desarrollada en Java con Spring Boot y PostgreSQL para la gestión de usuarios, registro y autenticación basada en tokens JWT.
 
 **Tecnologías**
-* **Java** (21)
+* **Java 21**
 * **Spring Boot**
 * **PostgreSQL**
+* **JSON Web Token (JWT)**
 * **Maven**
 
 ---
 
 **Variables de Entorno**
 
-Crea un archivo `.env` en la raíz del **backend** con la siguiente configuración base para desarrollo (*hay un*`.env-example` con los datos necesarios para comprobar el funcionamiento del codigo)
+Crea un archivo `.env` en la raíz del proyecto backend utilizando como referencia el archivo `.env-example`:
 
 ```env
-JWT_SECRET=...
-JWT_EXPIRATION=...
-DB_HOST=localhost
+JWT_SECRET=tu_clave_hexadecimal_de_64_bytes
+JWT_EXPIRATION=86400000
+DB_USERNAME=postgres
+DB_PASSWORD=
 ...
 ```
-### Estado del Endpoint `/api/users/profile`
-
-> **Nota sobre la respuesta 403 Forbidden:**  
-> Al realizar una petición `GET` sin encabezados de autorización, la API devolverá un estado **403 Forbidden**. 
->
-> Este comportamiento confirma el **correcto funcionamiento de la infraestructura base**
+> _Actualmente se encuentra en funcionamiento el **Registro** y **Login** para los usuarios_
