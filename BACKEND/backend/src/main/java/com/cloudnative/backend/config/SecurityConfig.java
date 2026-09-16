@@ -1,4 +1,4 @@
-package com.cloudnative.backend.security;
+package com.cloudnative.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
