@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pedidos360-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-users_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ms-pedidos360-users:
+    build:
+      context: ./ms-pedidos360-users
+    container_name: ms-pedidos360-users
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: users_db
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-5f2a91c4e8b7d34a6190f2c8a7b5e4d921c3f0a8e6d7b5c4a3f2e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:?se requiere AZURE_CLIENT_ID}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET:?se requiere AZURE_CLIENT_SECRET}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:?se requiere AZURE_TENANT_ID}
+      AZURE_REDIRECT_URI: ${AZURE_REDIRECT_URI:-http://localhost:8080/login/oauth2/code/azure}
+    ports:
+      - "8083:8083"
+
+  ms-pedidos360-catalog:
+    build:
+      context: ./ms-pedidos360-catalog
+    container_name: ms-pedidos360-catalog
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: catalog_db
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "8081:8081"
+
+  ms-pedidos360-orders:
+    build:
+      context: ./ms-pedidos360-orders
+    container_name: ms-pedidos360-orders
+    depends_on:
+      db:
+        condition: service_healthy
+      ms-pedidos360-catalog:
+        condition: service_started
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: orders_db
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      CATALOG_URL: http://ms-pedidos360-catalog:8081
+    ports:
+      - "8082:8082"
+
+  ms-pedidos360-bff:
+    build:
+      context: ./ms-pedidos360-bff
+    container_name: ms-pedidos360-bff
+    depends_on:
+      ms-pedidos360-users:
+        condition: service_started
+      ms-pedidos360-catalog:
+        condition: service_started
+      ms-pedidos360-orders:
+        condition: service_started
+    environment:
+      USERS_URL: http://ms-pedidos360-users:8083
+      CATALOG_URL: http://ms-pedidos360-catalog:8081
+      ORDERS_URL: http://ms-pedidos360-orders:8082
+      BFF_PUBLIC_BASE: ${BFF_PUBLIC_BASE:-http://localhost:8080}
+      JWT_SECRET: ${JWT_SECRET:-5f2a91c4e8b7d34a6190f2c8a7b5e4d921c3f0a8e6d7b5c4a3f2e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1}
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:
