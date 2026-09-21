@@ -6,7 +6,10 @@ Sistema de gestión de pedidos con arquitectura de microservicios. La autenticac
 Microsoft Entra ID (Usuarios + Roles)
    │  OAuth2 (Authorization Code + PKCE)
    ▼
- [ BFF: ms-pedidos360-bff ]  ← exposición pública (puerto 8080)
+ [ SPA React: FRONTEND ]  ← aplicación de usuario (puerto 4200)
+   │  login local JWT + botón "Ingresar con Microsoft"
+   ▼
+ [ BFF: ms-pedidos360-bff ]  ← exposición de la API (puerto 8080)
    │  Valida JWT + autorización (ADMIN/USER) + CORS
    ├──► ms-pedidos360-users    (usuarios, auth OAuth2, registro/login JWT) — puerto 8083
    ├──► ms-pedidos360-catalog  (categorías y productos)                    — puerto 8081
@@ -15,22 +18,23 @@ Microsoft Entra ID (Usuarios + Roles)
                └──► ms-pedidos360-catalog (valida precio y descuenta stock)
 ```
 
-## Microservicios
+## Componentes
 
-| Servicio             | Puerto | Base de datos | Función |
-|----------------------|--------|---------------|---------|
-| **ms-pedidos360-bff**      | 8080 (público) | - | Validación de JWT, roles, CORS y ruteo hacia los servicios internos |
+| Componente             | Puerto | Base de datos | Función |
+|------------------------|--------|---------------|---------|
+| **FRONTEND** (React + Vite) | 4200 | - | SPA: catálogo, carrito, órdenes y panel admin |
+| **ms-pedidos360-bff**  | 8080 (público) | - | Validación de JWT, roles, CORS y ruteo hacia los servicios internos |
 | **ms-pedidos360-users**    | 8083  | `users_db`    | Usuarios, login OAuth2 con Microsoft Entra ID y emisión de JWT |
 | **ms-pedidos360-catalog**  | 8081  | `catalog_db`  | CRUD de categorías y productos, control de stock |
 | **ms-pedidos360-orders**   | 8082  | `orders_db`   | Órdenes, estados y descuento de stock contra el catálogo |
 
-**Tecnologías:** Java 21 · Spring Boot · PostgreSQL · JWT · Maven · Docker / Docker Compose
+**Tecnologías:** Java 21 · Spring Boot · PostgreSQL · JWT · React + Vite · Maven · Docker / Docker Compose
 
 ---
 
 ## Ejecución con Docker (recomendada)
 
-Levanta PostgreSQL + los 4 microservicios en un solo comando:
+Levanta PostgreSQL + los 5 servicios (SPA + 4 microservicios) en un solo comando:
 
 ```bash
 # 1) Copiar el archivo de variables y completar los valores:
@@ -42,12 +46,13 @@ docker-compose up --build
 
 Una vez arriba:
 
-* BFF (punto de entrada único): `http://localhost:8080`
+* Aplicación web: `http://localhost:4200`
+* BFF (punto de entrada único de la API): `http://localhost:8080`
 * Login con Microsoft (OAuth2): `http://localhost:8080/oauth2/authorization/azure`
 * Catálogo (vía BFF): `http://localhost:8080/api/catalog/products`
 * Los puertos 8081, 8082 y 8083 se exponen únicamente para depuración; la aplicación debe consumir siempre el 8080.
 
-> Las variables requeridas en `.env`: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID`, `JWT_SECRET`.
+> Las variables requeridas en `.env`: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID`, `JWT_SECRET`. `SPA_BASE_URL` define hacia dónde redirige el backend tras el login OAuth2 (por defecto `http://localhost:4200`).
 
 ### Parar todo
 ```bash
@@ -67,7 +72,31 @@ cd ms-pedidos360-users && ./mvnw spring-boot:run      # puerto 8083
 cd ms-pedidos360-catalog && ./mvnw spring-boot:run    # puerto 8081
 cd ms-pedidos360-orders && ./mvnw spring-boot:run     # puerto 8082
 cd ms-pedidos360-bff && ./mvnw spring-boot:run        # puerto 8080
+cd FRONTEND && npm install && npm run dev             # puerto 4200
 ```
+
+> En modo local, definí `SPA_BASE_URL=http://localhost:4200` en `ms-pedidos360-users` y `VITE_BFF_URL=http://localhost:8080` en la SPA (el proxy de Vite ya deriva `/api` y `/oauth2` al BFF por defecto).
+
+---
+
+## Frontend (React + Vite)
+
+SPA en `FRONTEND/` que consume la API **solo a través del BFF** (puerto 8080). Usa un proxy de Vite en desarrollo para evitar CORS y guarda el JWT en `localStorage`.
+
+**Pantallas:**
+
+| Ruta | Acceso | Descripción |
+|------|--------|-------------|
+| `/login` | público | Login/registro local + botón "Ingresar con Microsoft" |
+| `/auth/callback` | público | Recibe el `token` que el backend adjunta tras el login OAuth2 |
+| `/` | autenticado | Catálogo con filtro por categoría y alta al carrito |
+| `/carrito` | autenticado | Cantidades, total y creación de orden |
+| `/mis-pedidos` | autenticado | Órdenes del usuario con sus items |
+| `/admin/productos` | ADMIN | CRUD de productos y categorías |
+| `/admin/ordenes` | ADMIN | Cambio de estado de cualquier orden |
+| `/admin/usuarios` | ADMIN | Listado de usuarios |
+
+**Flujo OAuth2:** el botón de Microsoft lleva a `/oauth2/authorization/azure` (proxy → BFF). Microsoft redirige a `AZURE_REDIRECT_URI`, y `ms-pedidos360-users` completa el login y redirige a `${SPA_BASE_URL}/auth/callback?token=...`, donde la SPA guarda el token y navega al catálogo.
 
 ---
 
