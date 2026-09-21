@@ -7,7 +7,7 @@ import com.pedidos360.users.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -23,6 +23,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+
+    @Value("${frontend.base-url}")
+    private String spaBaseUrl;
 
     @Override
     public void onAuthenticationSuccess(
@@ -45,17 +48,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String token = jwtService.generateToken(user);
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
-    }
-
-    private String escape(String value) {
-        return value.replace("\\", "\\\\")
-                .replace("\"", "'")
-                .replace("\n", "\\n")
-                .replace("\r", " ");
+        response.setStatus(HttpServletResponse.SC_FOUND);
+        response.sendRedirect(spaBaseUrl + "/auth/callback?token=" + token);
     }
 
     private String extractEmail(Authentication authentication) {
