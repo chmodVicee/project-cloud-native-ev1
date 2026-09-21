@@ -34,6 +34,7 @@ services:
       AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET:?se requiere AZURE_CLIENT_SECRET}
       AZURE_TENANT_ID: ${AZURE_TENANT_ID:?se requiere AZURE_TENANT_ID}
       AZURE_REDIRECT_URI: ${AZURE_REDIRECT_URI:-http://localhost:8080/login/oauth2/code/azure}
+      SPA_BASE_URL: ${SPA_BASE_URL:-http://localhost:4200}
     ports:
       - "8083:8083"
 
@@ -91,6 +92,17 @@ services:
       JWT_SECRET: ${JWT_SECRET:-5f2a91c4e8b7d34a6190f2c8a7b5e4d921c3f0a8e6d7b5c4a3f2e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1}
     ports:
       - "8080:8080"
+
+  frontend:
+    build:
+      context: ./FRONTEND
+    container_name: pedidos360-frontend
+    depends_on:
+      - ms-pedidos360-bff
+    environment:
+      VITE_BFF_URL: http://ms-pedidos360-bff:8080
+    ports:
+      - "4200:4200"
 
 volumes:
   pgdata:
