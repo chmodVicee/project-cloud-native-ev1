@@ -2,7 +2,9 @@ import axios from 'axios'
 
 export const TOKEN_KEY = 'pedidos360_token'
 
-export const api = axios.create()
+export const apiBaseUrl = import.meta.env.VITE_API_URL || ''
+
+export const api = axios.create({ baseURL: apiBaseUrl })
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY)

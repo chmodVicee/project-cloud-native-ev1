@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, register } from '../api/auth'
 import { useAuth } from '../auth/AuthContext'
+import { apiBaseUrl } from '../api/client'
 
 export function LoginPage() {
   const { setCredentials } = useAuth()
@@ -32,7 +33,7 @@ export function LoginPage() {
   }
 
   const handleMicrosoft = () => {
-    window.location.href = '/oauth2/authorization/azure'
+    window.location.href = `${apiBaseUrl}/oauth2/authorization/azure`
   }
 
   return (
