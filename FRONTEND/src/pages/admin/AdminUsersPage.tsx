@@ -11,7 +11,6 @@ export function AdminUsersPage() {
 
   return (
     <div>
-      <h2>Admin · Usuarios</h2>
       {error && <div className="alert alert-error">{error}</div>}
 
       <table className="table">

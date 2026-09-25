@@ -92,8 +92,6 @@ export function AdminProductsPage() {
 
   return (
     <div>
-      <h2>Admin · Productos</h2>
-
       <div className="admin-cols">
         <section className="card">
           <h3>{editingId ? `Editar producto #${editingId}` : 'Nuevo producto'}</h3>

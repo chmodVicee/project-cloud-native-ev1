@@ -1,6 +1,6 @@
 :root {
-  --primary: #0f6cbd;
-  --primary-dark: #0b5496;
+  --primary: #2e7d32;
+  --primary-dark: #1b5e20;
   --danger: #d9534f;
   --bg: #f5f7fa;
   --border: #e1e5eb;
@@ -59,8 +59,31 @@ body {
 
 .navbar-links a.active {
   color: var(--primary);
-  background: #eaf3fb;
+  background: #e6f2e9;
   font-weight: 600;
+}
+
+.admin-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--border);
+}
+
+.admin-links a {
+  color: #25623b;
+}
+
+.admin-links a:hover {
+  color: #1b4d2f;
+}
+
+.admin-links a.active {
+  color: #1b5e20;
+  background: #d4e8d9;
+  font-weight: 700;
 }
 
 .navbar-user {
@@ -331,12 +354,54 @@ textarea {
   font-weight: 600;
 }
 
-.status-recibido { background: #e3edf7; color: #2456a8; }
+.status-recibido { background: #f1f8f0; color: #33691e; }
 .status-confirmado { background: #e8f5e9; color: #2e7d32; }
 .status-preparando { background: #fff3e0; color: #e65100; }
-.status-listo { background: #e8eaf6; color: #283593; }
-.status-entregado { background: #e0f7fa; color: #00695c; }
+.status-listo { background: #e0f2f1; color: #00695c; }
+.status-entregado { background: #c8e6c9; color: #1b5e20; }
 .status-cancelado { background: #fdecea; color: #a12622; }
+
+.status-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0.75rem;
+}
+
+.status-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: #f0f2f5;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-step.done {
+  background: #e6f4ea;
+  color: #1e7e46;
+}
+
+.status-step.current {
+  background: var(--primary);
+  color: #fff;
+}
+
+.status-step.cancelled {
+  background: #fdecea;
+  color: #a12622;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
 
 .order-head {
   display: flex;
@@ -350,8 +415,8 @@ textarea {
 }
 
 .badge-admin {
-  background: #e7d6ff;
-  color: #6b21a8;
+  background: #2e7d32;
+  color: #fff;
   border-radius: 999px;
   padding: 0.1rem 0.55rem;
   font-size: 0.75rem;
@@ -359,8 +424,8 @@ textarea {
 }
 
 .badge-user {
-  background: #e3edf7;
-  color: #2456a8;
+  background: #e8f5e9;
+  color: #2e7d32;
   border-radius: 999px;
   padding: 0.1rem 0.55rem;
   font-size: 0.75rem;

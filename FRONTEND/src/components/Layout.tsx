@@ -25,8 +25,10 @@ export function Layout() {
           <NavLink to="/carrito">Carrito ({count})</NavLink>
           <NavLink to="/mis-pedidos">Mis pedidos</NavLink>
           {user?.role === 'ADMIN' && (
-            <span className="admin-menu">
-              <NavLink to="/admin/productos">Admin</NavLink>
+            <span className="admin-links">
+              <NavLink to="/admin/productos">Admin · Productos</NavLink>
+              <NavLink to="/admin/ordenes">Admin · Órdenes</NavLink>
+              <NavLink to="/admin/usuarios">Admin · Usuarios</NavLink>
             </span>
           )}
         </nav>
