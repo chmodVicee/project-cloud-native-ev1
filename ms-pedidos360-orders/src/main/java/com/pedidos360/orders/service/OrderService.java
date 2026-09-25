@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class OrderService {
         Order order = Order.builder()
                 .userEmail(userEmail)
                 .status(OrderStatus.RECIBIDO)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(ZoneId.of("America/Santiago")))
                 .total(BigDecimal.ZERO)
                 .build();
 
