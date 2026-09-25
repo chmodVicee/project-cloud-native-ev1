@@ -209,6 +209,18 @@ textarea {
   width: 100%;
   background: #2f2f2f;
   color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.btn-google {
+  width: 100%;
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #dadce0;
+}
+
+.btn-google:hover {
+  background: #f8f9fa;
 }
 
 .inline-actions {

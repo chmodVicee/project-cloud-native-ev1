@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -27,13 +28,28 @@ public class SecurityConfig {
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties properties) {
-        OAuth2ClientProperties.Registration reg = properties.getRegistration().get("azure");
-        if (reg == null) {
-            throw new IllegalStateException("No se encontró spring.security.oauth2.client.registration.azure");
+        Map<String, OAuth2ClientProperties.Registration> registrations = properties.getRegistration();
+        if (registrations == null || registrations.isEmpty()) {
+            throw new IllegalStateException(
+                    "No se encontró spring.security.oauth2.client.registration (azure/google)");
         }
-        OAuth2ClientProperties.Provider prov = properties.getProvider().get("azure");
-        if (prov == null) {
-            throw new IllegalStateException("No se encontró spring.security.oauth2.client.provider.azure");
+
+        List<ClientRegistration> clients = registrations.entrySet().stream()
+                .map(entry -> buildClientRegistration(
+                        entry.getKey(), entry.getValue(), properties.getProvider().get(entry.getKey())))
+                .toList();
+
+        return new InMemoryClientRegistrationRepository(clients);
+    }
+
+    private ClientRegistration buildClientRegistration(
+            String id,
+            OAuth2ClientProperties.Registration reg,
+            OAuth2ClientProperties.Provider prov
+    ) {
+        if (reg == null || prov == null) {
+            throw new IllegalStateException(
+                    "Registración OAuth2 incompleta para '" + id + "' (falta provider en el YAML)");
         }
 
         ClientAuthenticationMethod authMethod = ClientAuthenticationMethod.CLIENT_SECRET_POST;
@@ -49,7 +65,7 @@ public class SecurityConfig {
         }
 
         ClientRegistration.Builder builder = ClientRegistrations.fromIssuerLocation(prov.getIssuerUri())
-                .registrationId("azure")
+                .registrationId(id)
                 .clientId(reg.getClientId())
                 .clientSecret(reg.getClientSecret())
                 .clientAuthenticationMethod(authMethod)
@@ -62,7 +78,7 @@ public class SecurityConfig {
             builder.userNameAttributeName(prov.getUserNameAttribute());
         }
 
-        return new InMemoryClientRegistrationRepository(List.of(builder.build()));
+        return builder.build();
     }
 
     @Bean

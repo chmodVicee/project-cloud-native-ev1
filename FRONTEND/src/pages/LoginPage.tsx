@@ -36,6 +36,10 @@ export function LoginPage() {
     window.location.href = `${apiBaseUrl}/oauth2/authorization/azure`
   }
 
+  const handleGoogle = () => {
+    window.location.href = `${apiBaseUrl}/oauth2/authorization/google`
+  }
+
   return (
     <div className="login-page">
       <div className="login-card">
@@ -105,6 +109,9 @@ export function LoginPage() {
 
         <button type="button" className="btn btn-microsoft" onClick={handleMicrosoft}>
           Ingresar con Microsoft
+        </button>
+        <button type="button" className="btn btn-google" onClick={handleGoogle}>
+          Ingresar con Google
         </button>
       </div>
     </div>
