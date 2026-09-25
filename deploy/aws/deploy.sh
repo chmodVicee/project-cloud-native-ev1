@@ -33,7 +33,10 @@ aws cloudformation deploy \
     JwtExpiration="${JWT_EXPIRATION:-86400000}" \
     AzureClientId="$AZURE_CLIENT_ID" \
     AzureClientSecret="$AZURE_CLIENT_SECRET" \
-    AzureTenantId="$AZURE_TENANT_ID"
+    AzureTenantId="$AZURE_TENANT_ID" \
+    AzureAdminDomain="${AZURE_ADMIN_DOMAIN:-duocuc.cl}" \
+    GoogleClientId="${GOOGLE_CLIENT_ID:-}" \
+    GoogleClientSecret="${GOOGLE_CLIENT_SECRET:-}"
 
 echo "==> Paso 3: esperar a que el stack este completo"
 aws cloudformation wait stack-create-complete --stack-name "$STACK" --region "$REGION" || \
@@ -46,5 +49,6 @@ echo "================================================================"
 echo " Listo."
 echo " SPA + API (API Gateway): $(echo "$OUT" | python3 -c "import json,sys; print([o['OutputValue'] for o in json.load(sys.stdin) if o['OutputKey']=='ApiGatewayUrl'][0])")"
 echo " Redirect URI:            $(echo "$OUT" | python3 -c "import json,sys; print([o['OutputValue'] for o in json.load(sys.stdin) if o['OutputKey']=='AzureRedirectUri'][0])")"
+ echo " Google Redirect URI:      $(echo "$OUT" | python3 -c "import json,sys; print([o['OutputValue'] for o in json.load(sys.stdin) if o['OutputKey']=='GoogleRedirectUri'][0])")"
 echo " Aplica el Redirect URI en el App registration de Azure antes de probar el login."
 echo "================================================================"

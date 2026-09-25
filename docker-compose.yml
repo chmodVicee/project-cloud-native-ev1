@@ -34,6 +34,10 @@ services:
       AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET:?se requiere AZURE_CLIENT_SECRET}
       AZURE_TENANT_ID: ${AZURE_TENANT_ID:?se requiere AZURE_TENANT_ID}
       AZURE_REDIRECT_URI: ${AZURE_REDIRECT_URI:-http://localhost:8080/login/oauth2/code/azure}
+      AZURE_ADMIN_DOMAIN: ${AZURE_ADMIN_DOMAIN:-duocuc.cl}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8080/login/oauth2/code/google}
       SPA_BASE_URL: ${SPA_BASE_URL:-http://localhost:4200}
     ports:
       - "8083:8083"

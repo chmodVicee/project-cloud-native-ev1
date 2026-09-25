@@ -24,9 +24,22 @@ spring:
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             redirect-uri: ${AZURE_REDIRECT_URI}
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope:
+              - openid
+              - profile
+              - email
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
         provider:
           azure:
             issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0
+            user-name-attribute: sub
+          google:
+            issuer-uri: https://accounts.google.com
             user-name-attribute: sub
 
 jwt:
@@ -35,3 +48,7 @@ jwt:
 
 frontend:
   base-url: ${SPA_BASE_URL:http://localhost:4200}
+
+app:
+  security:
+    azure-admin-domain: ${AZURE_ADMIN_DOMAIN:duocuc.cl}

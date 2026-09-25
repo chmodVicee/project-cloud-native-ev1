@@ -36,6 +36,16 @@ Parameters:
     NoEcho: true
   AzureTenantId:
     Type: String
+  AzureAdminDomain:
+    Type: String
+    Default: duocuc.cl
+  GoogleClientId:
+    Type: String
+    Default: ""
+  GoogleClientSecret:
+    Type: String
+    NoEcho: true
+    Default: ""
 
 Resources:
   # ------------------------------------------------------------------ VPC
@@ -289,6 +299,14 @@ Resources:
               Value: !Ref AzureTenantId
             - Name: AZURE_REDIRECT_URI
               Value: !Sub '${Api.ApiEndpoint}/login/oauth2/code/azure'
+            - Name: AZURE_ADMIN_DOMAIN
+              Value: !Ref AzureAdminDomain
+            - Name: GOOGLE_CLIENT_ID
+              Value: !Ref GoogleClientId
+            - Name: GOOGLE_CLIENT_SECRET
+              Value: !Ref GoogleClientSecret
+            - Name: GOOGLE_REDIRECT_URI
+              Value: !Sub '${Api.ApiEndpoint}/login/oauth2/code/google'
             - Name: SPA_BASE_URL
               Value: !Sub '${Api.ApiEndpoint}'
             - Name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
@@ -464,6 +482,9 @@ Outputs:
   AzureRedirectUri:
     Description: URI de redireccion a registrar en Microsoft Entra
     Value: !Sub '${Api.ApiEndpoint}/login/oauth2/code/azure'
+  GoogleRedirectUri:
+    Description: URI de redireccion a registrar en Google Cloud Console
+    Value: !Sub '${Api.ApiEndpoint}/login/oauth2/code/google'
   LoadBalancerDns:
     Description: DNS del balanceador (acceso directo de diagnostico)
     Value: !GetAtt LoadBalancer.DNSName
