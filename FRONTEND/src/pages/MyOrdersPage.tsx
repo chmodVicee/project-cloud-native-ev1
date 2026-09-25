@@ -1,14 +1,30 @@
 import { useEffect, useState } from 'react'
 import { fetchMyOrders, Order } from '../api/orders'
+import { OrderStatusStepper } from '../components/OrderStatusStepper'
+
+const REFRESH_MS = 4000
 
 export function MyOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetchMyOrders()
-      .then(setOrders)
-      .catch(() => setError('Error cargando tus pedidos'))
+    let active = true
+    const load = () => {
+      fetchMyOrders()
+        .then((data) => {
+          if (active) setOrders(data)
+        })
+        .catch(() => {
+          if (active) setError('Error cargando tus pedidos')
+        })
+    }
+    load()
+    const timer = setInterval(load, REFRESH_MS)
+    return () => {
+      active = false
+      clearInterval(timer)
+    }
   }, [])
 
   const formatPrice = (value: number) =>
@@ -31,6 +47,7 @@ export function MyOrdersPage() {
             <span className="muted">{new Date(order.createdAt).toLocaleString('es-CL')}</span>
             <strong>{formatPrice(order.total)}</strong>
           </div>
+          <OrderStatusStepper status={order.status} />
           <table className="table">
             <thead>
               <tr>

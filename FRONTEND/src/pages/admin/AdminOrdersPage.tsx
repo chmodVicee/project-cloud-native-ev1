@@ -2,16 +2,21 @@ import { useEffect, useState } from 'react'
 import { fetchAllOrders, Order, updateOrderStatus } from '../../api/orders'
 
 const ORDER_STATUSES = ['RECIBIDO', 'CONFIRMADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO']
+const REFRESH_MS = 4000
 
 export function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [error, setError] = useState('')
 
-  const reload = () => {
+  let reload = () => {
     fetchAllOrders().then(setOrders).catch(() => setError('Error cargando órdenes'))
   }
 
-  useEffect(reload, [])
+  useEffect(() => {
+    reload()
+    const timer = setInterval(reload, REFRESH_MS)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleStatus = async (id: number, status: string) => {
     setError('')
@@ -28,7 +33,6 @@ export function AdminOrdersPage() {
 
   return (
     <div>
-      <h2>Admin · Órdenes</h2>
       {error && <div className="alert alert-error">{error}</div>}
 
       <table className="table">
